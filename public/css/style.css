@@ -69,6 +69,64 @@ input[type="password"] {
   background: #f8f9fa;
 }
 
+/* Password container styling */
+.password-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-container input[type="password"],
+.password-container input[type="text"] {
+  padding-right: 50px; /* Space for eye icon */
+}
+
+.password-toggle {
+  position: absolute;
+  right: 15px;
+  cursor: pointer;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  background: rgba(102, 126, 234, 0.1);
+}
+
+.password-toggle:hover {
+  background: rgba(102, 126, 234, 0.2);
+  transform: scale(1.1);
+}
+
+.eye-icon {
+  width: 20px;
+  height: 20px;
+  transition: all 0.3s ease;
+  stroke: #666;
+}
+
+.password-toggle:hover .eye-icon {
+  stroke: #667eea;
+  transform: scale(1.1);
+}
+
+.password-toggle.active .eye-icon {
+  stroke: #667eea;
+}
+
+.password-toggle.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.password-toggle.disabled .eye-icon {
+  stroke: #ccc;
+}
+
 input[type="text"]:focus,
 input[type="email"]:focus,
 input[type="password"]:focus {
