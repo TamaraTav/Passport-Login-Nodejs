@@ -132,8 +132,12 @@ function checkNotAuthenticated(req, res, next) {
 }
 
 app.delete("/logout", (req, res) => {
-  req.logOut();
-  res.redirect("/login");
+  req.logOut((err) => {
+    if (err) {
+      console.error("Logout error:", err);
+    }
+    res.redirect("/login");
+  });
 });
 
 app.listen(3002);
