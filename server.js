@@ -8,6 +8,19 @@ const session = require("express-session");
 const flash = require("express-flash");
 const methodOverride = require("method-override");
 
+// Import validation and security middleware
+const {
+  registerValidation,
+  loginValidation,
+  handleValidationErrors,
+} = require("./middleware/validation");
+const {
+  loginLimiter,
+  registerLimiter,
+  generalLimiter,
+  securityHeaders,
+} = require("./middleware/security");
+
 const initializePassport = require("./passport-config");
 initializePassport(
   passport,
@@ -19,13 +32,25 @@ initializePassport(
   }
 );
 
+// Security middleware
+app.use(securityHeaders);
+app.use(generalLimiter);
+
+app.use(express.static("public"));
 app.use(express.urlencoded({ extended: false }));
 app.use(flash());
 app.use(
   session({
-    secret: "your-secret-key-here-make-it-long-and-random",
+    secret:
+      process.env.SESSION_SECRET ||
+      "your-super-secret-session-key-change-this-in-production",
     resave: false,
     saveUninitialized: false,
+    cookie: {
+      secure: process.env.NODE_ENV === "production",
+      httpOnly: true,
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    },
   })
 );
 app.use(passport.initialize());
@@ -46,6 +71,9 @@ app.get("/login", checkNotAuthenticated, (req, res) => {
 app.post(
   "/login",
   checkNotAuthenticated,
+  loginLimiter,
+  loginValidation,
+  handleValidationErrors,
   passport.authenticate("local", {
     successRedirect: "/",
     failureRedirect: "/login",
@@ -57,20 +85,37 @@ app.get("/register", checkNotAuthenticated, (req, res) => {
   res.render("register.ejs");
 });
 
-app.post("/register", checkNotAuthenticated, async (req, res) => {
-  try {
-    const hashedPassword = await bcrypt.hash(req.body.password, 10);
-    users.push({
-      id: Date.now().toString(),
-      name: req.body.name,
-      email: req.body.email,
-      password: hashedPassword,
-    });
-    res.redirect("/login");
-  } catch {
-    res.redirect("register");
+app.post(
+  "/register",
+  checkNotAuthenticated,
+  registerLimiter,
+  registerValidation,
+  handleValidationErrors,
+  async (req, res) => {
+    try {
+      // Check if user already exists
+      const existingUser = users.find((user) => user.email === req.body.email);
+      if (existingUser) {
+        req.flash("error", "User with this email already exists");
+        return res.redirect("/register");
+      }
+
+      const hashedPassword = await bcrypt.hash(req.body.password, 10);
+      users.push({
+        id: Date.now().toString(),
+        name: req.body.name.trim(),
+        email: req.body.email.toLowerCase(),
+        password: hashedPassword,
+      });
+      req.flash("success", "Registration successful! Please log in.");
+      res.redirect("/login");
+    } catch (error) {
+      console.error("Registration error:", error);
+      req.flash("error", "Registration failed. Please try again.");
+      res.redirect("/register");
+    }
   }
-});
+);
 
 function checkAuthenticated(req, res, next) {
   if (req.isAuthenticated()) {
