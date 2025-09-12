@@ -46,6 +46,9 @@ const securityHeaders = helmet({
     includeSubDomains: true,
     preload: true,
   },
+  frameguard: { action: "deny" },
+  xssFilter: true,
+  noSniff: true,
 });
 
 module.exports = {

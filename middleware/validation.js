@@ -78,7 +78,28 @@ const handleValidationErrors = (req, res, next) => {
   if (!errors.isEmpty()) {
     const errorMessages = errors.array().map((error) => error.msg);
     req.flash("error", errorMessages.join(", "));
-    return res.redirect("back");
+
+    // Determine redirect URL based on the route
+    const referer = req.get("Referrer") || "/";
+    const isRegisterRoute = req.originalUrl.includes("/register");
+    const isLoginRoute = req.originalUrl.includes("/login");
+    const isForgotPasswordRoute = req.originalUrl.includes("/forgot-password");
+    const isResetPasswordRoute = req.originalUrl.includes("/reset-password");
+
+    let redirectUrl = "/";
+    if (isRegisterRoute) {
+      redirectUrl = "/register";
+    } else if (isLoginRoute) {
+      redirectUrl = "/login";
+    } else if (isForgotPasswordRoute) {
+      redirectUrl = "/forgot-password";
+    } else if (isResetPasswordRoute) {
+      redirectUrl = "/reset-password";
+    } else if (referer !== "/") {
+      redirectUrl = referer;
+    }
+
+    return res.redirect(redirectUrl);
   }
   next();
 };
