@@ -10,6 +10,14 @@ const methodOverride = require("method-override");
 // Import security middleware
 const { generalLimiter, securityHeaders } = require("./middleware/security");
 
+// Import error handling middleware
+const {
+  errorHandler,
+  notFound,
+  handleUnhandledRejection,
+  handleUncaughtException,
+} = require("./middleware/errorHandler");
+
 // Import routes
 const {
   router: authRoutes,
@@ -100,5 +108,17 @@ function checkNotAuthenticated(req, res, next) {
 }
 
 // Logout route is now handled in authRoutes
+
+// Handle undefined routes (404)
+app.all("*", notFound);
+
+// Global error handling middleware (must be last)
+app.use(errorHandler);
+
+// Handle unhandled promise rejections
+process.on("unhandledRejection", handleUnhandledRejection);
+
+// Handle uncaught exceptions
+process.on("uncaughtException", handleUncaughtException);
 
 app.listen(3002);
