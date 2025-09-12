@@ -13,22 +13,22 @@ const { generalLimiter, securityHeaders } = require("./middleware/security");
 // Import routes
 const {
   router: authRoutes,
-  users,
-  verificationTokens,
+  getUsers,
+  getVerificationTokens,
 } = require("./routes/authRoutes");
 const {
   router: passwordRoutes,
-  resetTokens,
+  getResetTokens,
 } = require("./routes/passwordRoutes");
 
 const initializePassport = require("./passport-config");
 initializePassport(
   passport,
   (id) => {
-    return users.find((user) => user.id === id);
+    return getUsers().find((user) => user.id === id);
   },
   (email) => {
-    return users.find((user) => user.email === email);
+    return getUsers().find((user) => user.email === email);
   }
 );
 
