@@ -1,55 +1,26 @@
-const bcrypt = require("bcrypt");
 const passport = require("passport");
 const { sendVerificationEmail } = require("../services/emailService");
-const {
-  generateTokenWithExpiry,
-  isTokenExpired,
-  hashToken,
-} = require("../utils/tokenUtils");
-
-// In-memory storage (in production, use database)
-let users = [];
-let verificationTokens = new Map();
+const User = require("../models/User");
+const Token = require("../models/Token");
 
 // Get users and verificationTokens for routes
-const getUsers = () => users;
-const getVerificationTokens = () => verificationTokens;
+const getUsers = () => User.getAll();
+const getVerificationTokens = () => Token.getAllVerificationTokens();
 
 // Registration controller
 const register = async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
-    // Check if user already exists
-    const existingUser = users.find((user) => user.email === email);
-    if (existingUser) {
-      req.flash("error", "User with this email already exists");
-      return res.redirect("/register");
-    }
+    // Create new user using User model
+    const newUser = await User.create({ name, email, password });
 
-    // Hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Generate verification token
-    const verificationToken = generateTokenWithExpiry(24); // 24 hours
-    const hashedToken = hashToken(verificationToken);
-
-    // Create new user
-    const newUser = {
-      id: Date.now().toString(),
-      name,
-      email,
-      password: hashedPassword,
-      isVerified: false,
-      createdAt: new Date(),
-    };
-
-    users.push(newUser);
-    verificationTokens.set(hashedToken, {
-      userId: newUser.id,
-      email: newUser.email,
-      expiresAt: verificationToken.expiresAt,
-    });
+    // Generate verification token using Token model
+    const verificationToken = Token.createVerificationToken(
+      newUser.id,
+      newUser.email,
+      24 // 24 hours
+    );
 
     // Send verification email
     try {
@@ -66,11 +37,15 @@ const register = async (req, res) => {
       );
     }
 
-    console.log("Current users:", users.length);
+    console.log("Current users:", User.getCount());
     res.redirect("/login");
   } catch (error) {
     console.error("Registration error:", error);
-    req.flash("error", "Registration failed. Please try again.");
+    if (error.message === "User with this email already exists") {
+      req.flash("error", error.message);
+    } else {
+      req.flash("error", "Registration failed. Please try again.");
+    }
     res.redirect("/register");
   }
 };
@@ -118,32 +93,23 @@ const verifyEmail = async (req, res) => {
       return res.redirect("/login");
     }
 
-    const hashedToken = hashToken(token);
-    const tokenData = verificationTokens.get(hashedToken);
+    // Find verification token using Token model
+    const tokenData = Token.findVerificationToken(token);
 
     if (!tokenData) {
       req.flash("error", "Invalid or expired verification token");
       return res.redirect("/login");
     }
 
-    if (isTokenExpired(tokenData.expiresAt)) {
-      verificationTokens.delete(hashedToken);
-      req.flash(
-        "error",
-        "Verification token has expired. Please register again."
-      );
-      return res.redirect("/register");
-    }
-
-    // Find and verify user
-    const user = users.find((u) => u.id === tokenData.userId);
+    // Find and verify user using User model
+    const user = User.verifyUser(tokenData.userId);
     if (!user) {
       req.flash("error", "User not found");
       return res.redirect("/login");
     }
 
-    user.isVerified = true;
-    verificationTokens.delete(hashedToken);
+    // Delete used token
+    Token.deleteVerificationToken(token);
 
     console.log("User verified:", user.isVerified);
     req.flash("success", "Email verified successfully! You can now log in.");

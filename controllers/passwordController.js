@@ -1,41 +1,25 @@
-const bcrypt = require("bcrypt");
 const { sendPasswordResetEmail } = require("../services/emailService");
-const {
-  generateTokenWithExpiry,
-  isTokenExpired,
-  hashToken,
-} = require("../utils/tokenUtils");
-
-// In-memory storage for reset tokens (in production, use database)
-let resetTokens = new Map();
+const User = require("../models/User");
+const Token = require("../models/Token");
 
 // Get resetTokens for routes
-const getResetTokens = () => resetTokens;
+const getResetTokens = () => Token.getAllResetTokens();
 
 // Forgot password controller
 const forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
 
-    // Find user by email
-    const users = require("./authController").getUsers();
-    const user = users.find((u) => u.email === email);
+    // Find user by email using User model
+    const user = User.findByEmail(email);
 
     if (!user) {
       req.flash("error", "No user with that email address");
       return res.redirect("/forgot-password");
     }
 
-    // Generate reset token
-    const resetToken = generateTokenWithExpiry(1); // 1 hour
-    const hashedToken = hashToken(resetToken.token);
-
-    // Store reset token
-    resetTokens.set(hashedToken, {
-      userId: user.id,
-      email: user.email,
-      expiresAt: resetToken.expiresAt,
-    });
+    // Generate reset token using Token model
+    const resetToken = Token.createResetToken(user.id, user.email, 1); // 1 hour
 
     // Send reset email
     try {
@@ -71,38 +55,27 @@ const resetPassword = async (req, res) => {
       return res.redirect("/forgot-password");
     }
 
-    const hashedToken = hashToken(token);
-    const tokenData = resetTokens.get(hashedToken);
+    // Find reset token using Token model
+    const tokenData = Token.findResetToken(token);
 
     if (!tokenData) {
       req.flash("error", "Invalid or expired reset token");
       return res.redirect("/forgot-password");
     }
 
-    if (isTokenExpired(tokenData.expiresAt)) {
-      resetTokens.delete(hashedToken);
-      req.flash(
-        "error",
-        "Reset token has expired. Please request a new password reset."
-      );
-      return res.redirect("/forgot-password");
-    }
-
-    // Find user
-    const users = require("./authController").getUsers();
-    const user = users.find((u) => u.id === tokenData.userId);
+    // Find user using User model
+    const user = User.findById(tokenData.userId);
 
     if (!user) {
       req.flash("error", "User not found");
       return res.redirect("/forgot-password");
     }
 
-    // Hash new password
-    const hashedPassword = await bcrypt.hash(password, 10);
-    user.password = hashedPassword;
+    // Update user password using User model
+    await User.updatePassword(user.id, password);
 
     // Remove used token
-    resetTokens.delete(hashedToken);
+    Token.deleteResetToken(token);
 
     req.flash(
       "success",

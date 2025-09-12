@@ -21,14 +21,15 @@ const {
   getResetTokens,
 } = require("./routes/passwordRoutes");
 
+const User = require("./models/User");
 const initializePassport = require("./passport-config");
 initializePassport(
   passport,
   (id) => {
-    return getUsers().find((user) => user.id === id);
+    return User.findById(id);
   },
   (email) => {
-    return getUsers().find((user) => user.email === email);
+    return User.findByEmail(email);
   }
 );
 
