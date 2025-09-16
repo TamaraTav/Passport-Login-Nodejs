@@ -25,6 +25,14 @@ const createTransporter = () => {
 
 // Send verification email
 const sendVerificationEmail = async (email, verificationToken, userName) => {
+  if (process.env.NODE_ENV === "test") {
+    // In tests, skip real sending
+    const verificationUrl = `${
+      process.env.BASE_URL || "http://localhost:3002"
+    }/verify-email?token=${verificationToken}`;
+    console.log("[TEST] Verification URL:", verificationUrl);
+    return { success: true, messageId: "test-skip" };
+  }
   try {
     console.log("Sending verification email to:", email);
     const transporter = createTransporter();
@@ -98,6 +106,13 @@ const sendVerificationEmail = async (email, verificationToken, userName) => {
 
 // Send password reset email
 const sendPasswordResetEmail = async (email, resetToken, userName) => {
+  if (process.env.NODE_ENV === "test") {
+    const resetUrl = `${
+      process.env.BASE_URL || "http://localhost:3002"
+    }/reset-password?token=${resetToken}`;
+    console.log("[TEST] Reset URL:", resetUrl);
+    return { success: true, messageId: "test-skip" };
+  }
   try {
     const transporter = createTransporter();
 

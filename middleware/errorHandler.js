@@ -58,12 +58,15 @@ const handleJWTError = () =>
 const handleJWTExpiredError = () =>
   new AuthError("Your token has expired! Please log in again.", 401);
 
-// Main error handling middleware
-const errorHandler = (err, req, res) => {
+// Main error handling middleware (must include next for Express)
+const errorHandler = (err, req, res, next) => {
   err.statusCode = err.statusCode || 500;
   err.status = err.status || "error";
 
-  if (process.env.NODE_ENV === "development") {
+  if (
+    process.env.NODE_ENV === "development" ||
+    process.env.NODE_ENV === "test"
+  ) {
     sendErrorDev(err, res);
   } else {
     let error = { ...err };

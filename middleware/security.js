@@ -10,6 +10,7 @@ const loginLimiter = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
+  // do not skip in tests; tests assert 429 behavior
 });
 
 // Rate limiting for registration
@@ -21,6 +22,7 @@ const registerLimiter = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
+  // do not skip in tests; tests assert 429 behavior
 });
 
 // General rate limiting
@@ -29,6 +31,7 @@ const generalLimiter = rateLimit({
   max: 100, // limit each IP to 100 requests per windowMs
   standardHeaders: true,
   legacyHeaders: false,
+  skip: () => process.env.NODE_ENV === "test",
 });
 
 // Security headers middleware

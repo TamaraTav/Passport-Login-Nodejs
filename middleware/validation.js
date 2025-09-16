@@ -109,4 +109,5 @@ module.exports = {
   loginValidation,
   handleValidationErrors,
   validatePasswordStrength,
+  // Added below in export after definitions
 };

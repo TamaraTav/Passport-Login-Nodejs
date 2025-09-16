@@ -100,8 +100,6 @@ class Token {
 
   // Clean expired tokens (cleanup function)
   static cleanExpiredTokens() {
-    const now = new Date();
-
     // Clean verification tokens
     for (const [hashedToken, token] of verificationTokens.entries()) {
       if (isTokenExpired(token.expiresAt)) {

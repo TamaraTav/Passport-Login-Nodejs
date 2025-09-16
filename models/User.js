@@ -22,31 +22,27 @@ class User {
 
   // Create new user
   static async create({ name, email, password }) {
-    try {
-      // Check if user already exists
-      const existingUser = users.find((user) => user.email === email);
-      if (existingUser) {
-        throw new Error("User with this email already exists");
-      }
-
-      // Hash password
-      const hashedPassword = await bcrypt.hash(password, 10);
-
-      // Create new user
-      const newUser = new User({
-        id: Date.now().toString(),
-        name,
-        email,
-        password: hashedPassword,
-        isVerified: false,
-        createdAt: new Date(),
-      });
-
-      users.push(newUser);
-      return newUser;
-    } catch (error) {
-      throw error;
+    // Check if user already exists
+    const existingUser = users.find((user) => user.email === email);
+    if (existingUser) {
+      throw new Error("User with this email already exists");
     }
+
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Create new user
+    const newUser = new User({
+      id: Date.now().toString(),
+      name,
+      email,
+      password: hashedPassword,
+      isVerified: false,
+      createdAt: new Date(),
+    });
+
+    users.push(newUser);
+    return newUser;
   }
 
   // Find user by ID
@@ -96,7 +92,8 @@ class User {
 
   // Convert to plain object (remove password)
   toJSON() {
-    const { password, ...userWithoutPassword } = this;
+    const userWithoutPassword = { ...this };
+    delete userWithoutPassword.password;
     return userWithoutPassword;
   }
 }
