@@ -6,6 +6,8 @@ const passport = require("passport");
 const session = require("express-session");
 const flash = require("express-flash");
 const methodOverride = require("method-override");
+const swaggerUi = require("swagger-ui-express");
+const swaggerSpec = require("./config/swagger");
 
 // Import security middleware
 const { generalLimiter, securityHeaders } = require("./middleware/security");
@@ -19,15 +21,8 @@ const {
 } = require("./middleware/errorHandler");
 
 // Import routes
-const {
-  router: authRoutes,
-  getUsers,
-  getVerificationTokens,
-} = require("./routes/authRoutes");
-const {
-  router: passwordRoutes,
-  getResetTokens,
-} = require("./routes/passwordRoutes");
+const { router: authRoutes } = require("./routes/authRoutes");
+const { router: passwordRoutes } = require("./routes/passwordRoutes");
 
 const User = require("./models/User");
 const initializePassport = require("./passport-config");
@@ -67,8 +62,11 @@ app.use(passport.session());
 app.set("view-engine", "ejs");
 app.use(methodOverride("_method"));
 
+// Swagger setup
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
 // Debug: Log users on startup
-console.log("Current users:", users.length);
+console.log("Current users:", User.getCount());
 
 app.get("/", checkAuthenticated, (req, res) => {
   res.render("index.ejs", { user: req.user });
