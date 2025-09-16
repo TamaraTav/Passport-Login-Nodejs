@@ -1,5 +1,4 @@
 const express = require("express");
-const { validatePasswordStrength } = require("../middleware/validation");
 const {
   forgotPassword,
   resetPassword,
@@ -14,6 +13,8 @@ router.use(express.json());
  * @openapi
  * /forgot-password:
  *   get:
+ *     tags:
+ *       - Password
  *     summary: Render forgot password page
  *     responses:
  *       200:
@@ -32,6 +33,8 @@ router.get("/forgot-password", (req, res) => {
  * @openapi
  * /forgot-password:
  *   post:
+ *     tags:
+ *       - Password
  *     summary: Submit forgot password request
  *     requestBody:
  *       required: true
@@ -77,6 +80,8 @@ router.post(
  * @openapi
  * /reset-password:
  *   get:
+ *     tags:
+ *       - Password
  *     summary: Render reset password page
  *     parameters:
  *       - in: query
@@ -109,6 +114,8 @@ router.get("/reset-password", (req, res) => {
  * @openapi
  * /reset-password:
  *   post:
+ *     tags:
+ *       - Password
  *     summary: Submit new password with token
  *     requestBody:
  *       required: true

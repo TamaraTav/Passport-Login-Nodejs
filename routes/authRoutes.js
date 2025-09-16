@@ -22,6 +22,8 @@ router.use(express.json());
  * @openapi
  * /register:
  *   get:
+ *     tags:
+ *       - Auth
  *     summary: Render register page
  *     responses:
  *       200:
@@ -40,6 +42,8 @@ router.get("/register", (req, res) => {
  * @openapi
  * /login:
  *   get:
+ *     tags:
+ *       - Auth
  *     summary: Render login page
  *     responses:
  *       200:
@@ -64,6 +68,8 @@ const maybeRegisterLimiter =
  * @openapi
  * /register:
  *   post:
+ *     tags:
+ *       - Auth
  *     summary: Register a new user
  *     requestBody:
  *       required: true
@@ -101,6 +107,8 @@ const maybeLoginLimiter =
  * @openapi
  * /login:
  *   post:
+ *     tags:
+ *       - Auth
  *     summary: Login user
  *     requestBody:
  *       required: true
@@ -133,6 +141,8 @@ router.delete("/logout", logout);
  * @openapi
  * /verify-email:
  *   get:
+ *     tags:
+ *       - Auth
  *     summary: Verify email with token
  *     parameters:
  *       - in: query
