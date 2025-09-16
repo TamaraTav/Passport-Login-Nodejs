@@ -123,7 +123,7 @@ process.on("uncaughtException", handleUncaughtException);
 const PORT = process.env.PORT || 3002;
 
 // Only start server if not in Vercel environment
-if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+if (!process.env.VERCEL) {
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
   });
