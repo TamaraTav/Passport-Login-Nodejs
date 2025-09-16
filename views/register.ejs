@@ -3,136 +3,126 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Register - Passport Auth</title>
-    <link rel="stylesheet" href="/css/style.css" />
+    <title>Register</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 400px;
+        margin: 50px auto;
+        padding: 20px;
+        background-color: #f5f5f5;
+      }
+      .container {
+        background: white;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+      h1 {
+        color: #333;
+        text-align: center;
+        margin-bottom: 30px;
+      }
+      .form-group {
+        margin-bottom: 20px;
+      }
+      label {
+        display: block;
+        margin-bottom: 5px;
+        color: #555;
+      }
+      input[type="text"],
+      input[type="email"],
+      input[type="password"] {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 16px;
+      }
+      button {
+        width: 100%;
+        background: #28a745;
+        color: white;
+        padding: 12px;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+      }
+      button:hover {
+        background: #218838;
+      }
+      .alert {
+        padding: 10px;
+        margin-bottom: 20px;
+        border-radius: 5px;
+      }
+      .alert-error {
+        background: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+      }
+      .alert-success {
+        background: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+      }
+      .links {
+        text-align: center;
+        margin-top: 20px;
+      }
+      .links a {
+        color: #007bff;
+        text-decoration: none;
+      }
+      .links a:hover {
+        text-decoration: underline;
+      }
+    </style>
   </head>
   <body>
     <div class="container">
       <h1>Register</h1>
 
-      <% if (messages.error) { %>
-      <div class="alert alert-error"><%= messages.error %></div>
-      <% } %> <% if (messages.success) { %>
-      <div class="alert alert-success"><%= messages.success %></div>
+      <% if (error && error.length > 0) { %>
+      <div class="alert alert-error"><%= error %></div>
+      <% } %> <% if (success && success.length > 0) { %>
+      <div class="alert alert-success"><%= success %></div>
       <% } %>
 
       <form action="/register" method="POST">
         <div class="form-group">
-          <label for="name">Name</label>
+          <label for="name">Name:</label>
           <input type="text" id="name" name="name" required />
         </div>
+
         <div class="form-group">
-          <label for="email">Email</label>
+          <label for="email">Email:</label>
           <input type="email" id="email" name="email" required />
         </div>
+
         <div class="form-group">
-          <label for="password">Password</label>
-          <div class="password-container">
-            <input type="password" id="password" name="password" required />
-            <span class="password-toggle" onclick="togglePassword('password')">
-              <svg
-                class="eye-icon"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                <circle cx="12" cy="12" r="3"></circle>
-              </svg>
-            </span>
-          </div>
-          <small
-            >Password must be at least 8 characters with uppercase, lowercase,
-            number, and special character</small
-          >
+          <label for="password">Password:</label>
+          <input type="password" id="password" name="password" required />
         </div>
+
         <div class="form-group">
-          <label for="confirmPassword">Confirm Password</label>
-          <div class="password-container">
-            <input
-              type="password"
-              id="confirmPassword"
-              name="confirmPassword"
-              required
-            />
-            <span
-              class="password-toggle"
-              onclick="togglePassword('confirmPassword')"
-            >
-              <svg
-                class="eye-icon"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                <circle cx="12" cy="12" r="3"></circle>
-              </svg>
-            </span>
-          </div>
+          <label for="confirmPassword">Confirm Password:</label>
+          <input
+            type="password"
+            id="confirmPassword"
+            name="confirmPassword"
+            required
+          />
         </div>
+
         <button type="submit">Register</button>
       </form>
-      <div class="link">
-        <a href="/login">Already have an account? Login</a>
+
+      <div class="links">
+        <p>Already have an account? <a href="/login">Login here</a></p>
       </div>
     </div>
-
-    <script>
-      function togglePassword(inputId) {
-        const input = document.getElementById(inputId);
-        const toggle = input.nextElementSibling;
-        const eyeIcon = toggle.querySelector(".eye-icon");
-
-        // Check if password field is empty
-        if (!input.value.trim()) {
-          return; // Don't toggle if password is empty
-        }
-
-        if (input.type === "password") {
-          input.type = "text";
-          toggle.classList.add("active");
-          eyeIcon.innerHTML = `
-             <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
-             <line x1="1" y1="1" x2="23" y2="23"></line>
-           `;
-        } else {
-          input.type = "password";
-          toggle.classList.remove("active");
-          eyeIcon.innerHTML = `
-             <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-             <circle cx="12" cy="12" r="3"></circle>
-           `;
-        }
-      }
-
-      // Add event listeners for password fields
-      document.addEventListener("DOMContentLoaded", function () {
-        const passwordInputs = document.querySelectorAll(
-          'input[type="password"]'
-        );
-
-        passwordInputs.forEach((input) => {
-          const toggle = input.nextElementSibling;
-
-          // Function to update toggle state
-          function updateToggleState() {
-            if (!input.value.trim()) {
-              toggle.classList.add("disabled");
-            } else {
-              toggle.classList.remove("disabled");
-            }
-          }
-
-          // Initial state
-          updateToggleState();
-
-          // Update on input change
-          input.addEventListener("input", updateToggleState);
-        });
-      });
-    </script>
   </body>
 </html>

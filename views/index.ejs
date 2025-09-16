@@ -3,17 +3,59 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Dashboard - Passport Auth</title>
-    <link rel="stylesheet" href="/css/style.css" />
+    <title>Welcome</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f5f5f5;
+      }
+      .container {
+        background: white;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+      h1 {
+        color: #333;
+        text-align: center;
+      }
+      .user-info {
+        background: #e8f5e8;
+        padding: 15px;
+        border-radius: 5px;
+        margin: 20px 0;
+      }
+      .logout-btn {
+        background: #dc3545;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+      }
+      .logout-btn:hover {
+        background: #c82333;
+      }
+    </style>
   </head>
   <body>
-    <div class="welcome-container">
-      <h1 class="welcome-title">Welcome <%= user.name %>!</h1>
-      <p class="welcome-subtitle">
-        You have successfully logged in to your account.
-      </p>
-      <form action="/logout?_method=DELETE" method="POST">
-        <button type="submit" class="logout-btn">Log Out</button>
+    <div class="container">
+      <h1>Welcome to Passport Auth App!</h1>
+
+      <div class="user-info">
+        <h2>Hello, <%= user.name %>!</h2>
+        <p><strong>Email:</strong> <%= user.email %></p>
+        <p><strong>Verified:</strong> <%= user.isVerified ? 'Yes' : 'No' %></p>
+      </div>
+
+      <form action="/logout" method="POST" style="text-align: center">
+        <input type="hidden" name="_method" value="DELETE" />
+        <button type="submit" class="logout-btn">Logout</button>
       </form>
     </div>
   </body>
