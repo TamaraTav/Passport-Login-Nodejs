@@ -120,4 +120,14 @@ process.on("unhandledRejection", handleUnhandledRejection);
 // Handle uncaught exceptions
 process.on("uncaughtException", handleUncaughtException);
 
-app.listen(3002);
+const PORT = process.env.PORT || 3002;
+
+// Only start server if not in Vercel environment
+if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+}
+
+// Export for Vercel
+module.exports = app;
